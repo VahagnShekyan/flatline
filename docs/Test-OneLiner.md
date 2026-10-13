@@ -5,6 +5,12 @@ online version: https://github.com/VahagnShekyan/flatline/blob/main/docs/Test-On
 schema: 2.0.0
 ---
 
+<!-- platyPS fixes this layout: upper-case section headings, cmdlet and .NET type names as headings, and
+"Example 1: Verb ..." titles. -->
+<!-- vale Google.Headings = NO -->
+<!-- vale Google.Colons = NO -->
+<!-- vale Google.Spacing = NO -->
+
 # Test-OneLiner
 
 ## SYNOPSIS
@@ -20,11 +26,11 @@ Test-OneLiner [-Original] <String> [-OneLiner] <String> [<CommonParameters>]
 ## DESCRIPTION
 
 Test-OneLiner parses both inputs with the PowerShell language parser and requires zero parse errors from
-each. It then walks both abstract syntax trees in order and compares node types and leaf values: constant
-values, variable names, command names, member names and parameter names. String nodes are compared by
-value, so a here-string and its flattened double-quoted form are treated as equivalent. A top-level
-`& { ... }` wrapper is unwrapped before comparison, so a flattened `param` script still compares equal to
-its source.
+each. It then walks both abstract syntax trees in order and compares node types and leaf values. Leaf
+values are constant values, variable names, command names, member names, and parameter names. String
+nodes are compared by value, so a here-string and its flattened double-quoted form are treated as
+equivalent. A top-level `& { ... }` wrapper is unwrapped before comparison, so a flattened `param` script
+still compares equal to its source.
 
 The result reports whether the two are Equivalent, any ParseErrors found, and the FirstDifference when
 they diverge.
@@ -94,12 +100,12 @@ This cmdlet supports the common parameters. For more information, see
 
 ### System.Management.Automation.PSCustomObject
 
-An object with Equivalent, ParseErrors and FirstDifference.
+An object with Equivalent, ParseErrors, and FirstDifference.
 
 ## NOTES
 
-Equivalence is structural, not textual. Whitespace, comments and the physical form of strings do not
-affect the result; a changed constant, name or node type does.
+Equivalence is structural, not textual. Whitespace, comments, and the physical form of strings do not
+affect the result. A changed constant, name, or node type does.
 
 ## RELATED LINKS
 

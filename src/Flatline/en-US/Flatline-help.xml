@@ -10,8 +10,8 @@
       <command:noun>OneLiner</command:noun>
     </command:details>
     <maml:description>
-      <maml:para>ConvertTo-OneLiner parses the input with the PowerShell language parser and rewrites it from the token stream, guided by the abstract syntax tree, into a single physical line with no carriage return or line feed. Statement separators are inserted only where two sibling statements meet, so constructs such as "} else", "} catch", switch clauses and begin/process/end blocks are never broken by a stray semicolon. Here-strings and multi-line string literals are rewritten as one-line double-quoted strings with their embedded newlines preserved as backtick escapes.</maml:para>
-      <maml:para>If the input does not parse, the function stops and reports the parse errors with their line numbers rather than emitting something that might behave differently. A top-level param block is wrapped as "and { ... }" so arguments can still be appended. Dropped #requires statements and comment-based help raise warnings on the warning stream.</maml:para>
+      <maml:para>ConvertTo-OneLiner parses the input with the PowerShell language parser. It then rewrites it from the token stream, guided by the abstract syntax tree, into a single physical line. The result has no carriage return or line feed. Statement separators are inserted only where two sibling statements meet. A stray semicolon never breaks constructs such as "} else", "} catch", switch clauses, and begin/process/end blocks. Here-strings and multi-line string literals are rewritten as one-line double-quoted strings with their embedded newlines preserved as backtick escapes.</maml:para>
+      <maml:para>If the input does not parse, the function stops and reports the parse errors with their line numbers. It never emits something that might behave differently. A top-level param block is wrapped as "&amp; { ... }" so arguments can still be appended. Dropped #requires statements and comment-based help raise warnings on the warning stream.</maml:para>
       <maml:para>Use Test-OneLiner to prove that the result is the same program as the input.</maml:para>
     </maml:description>
     <command:syntax>
@@ -82,7 +82,7 @@
       <command:parameter required="false" pipelineInput="false" position="named">
         <maml:name>Mode</maml:name>
         <maml:description>
-          <maml:para>Output form. Plain is readable PowerShell on one line. Encoded is the standard -EncodedCommand form (Base64 of UTF-16LE). Auto chooses Plain unless Wrap is not None and the one-liner contains a character cmd.exe reinterprets inside double quotes (a double quote, a percent sign, or an exclamation mark), in which case it chooses Encoded.</maml:para>
+          <maml:para>Output form. Plain is readable PowerShell on one line. Encoded is the standard -EncodedCommand form (Base64 of UTF-16LE). Auto chooses Encoded when Wrap is not None and the one-liner contains a character that cmd.exe reinterprets inside double quotes. Those characters are a double quote, a percent sign, and an exclamation mark. Otherwise Auto chooses Plain.</maml:para>
         </maml:description>
         <command:parameterValue required="true">String</command:parameterValue>
         <dev:type><maml:name>String</maml:name></dev:type>
@@ -177,7 +177,7 @@
       <command:noun>OneLiner</command:noun>
     </command:details>
     <maml:description>
-      <maml:para>Test-OneLiner parses both inputs with the PowerShell language parser and requires zero parse errors from each. It then walks both abstract syntax trees in order and compares node types and leaf values: constant values, variable names, command names, member names and parameter names. String nodes are compared by value, so a here-string and its flattened double-quoted form are treated as equivalent. A top-level "and { ... }" wrapper is unwrapped before comparison, so a flattened param script still compares equal to its source.</maml:para>
+      <maml:para>Test-OneLiner parses both inputs with the PowerShell language parser and requires zero parse errors from each. It then walks both abstract syntax trees in order and compares node types and leaf values. Leaf values are constant values, variable names, command names, member names, and parameter names. String nodes are compared by value, so a here-string and its flattened double-quoted form are treated as equivalent. A top-level "&amp; { ... }" wrapper is unwrapped before comparison, so a flattened param script still compares equal to its source.</maml:para>
       <maml:para>The result reports whether the two are Equivalent, any ParseErrors found, and the FirstDifference when they diverge.</maml:para>
     </maml:description>
     <command:syntax>
@@ -223,13 +223,13 @@
       <command:returnValue>
         <dev:type><maml:name>System.Management.Automation.PSCustomObject</maml:name></dev:type>
         <maml:description>
-          <maml:para>An object with Equivalent, ParseErrors and FirstDifference.</maml:para>
+          <maml:para>An object with Equivalent, ParseErrors, and FirstDifference.</maml:para>
         </maml:description>
       </command:returnValue>
     </command:returnValues>
     <maml:alertSet>
       <maml:alert>
-        <maml:para>Equivalence is structural, not textual. Whitespace, comments and the physical form of strings do not affect the result; a changed constant, name or node type does.</maml:para>
+        <maml:para>Equivalence is structural, not textual. Whitespace, comments, and the physical form of strings do not affect the result. A changed constant, name, or node type does.</maml:para>
       </maml:alert>
     </maml:alertSet>
     <command:examples>

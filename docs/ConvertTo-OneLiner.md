@@ -5,6 +5,12 @@ online version: https://github.com/VahagnShekyan/flatline/blob/main/docs/Convert
 schema: 2.0.0
 ---
 
+<!-- platyPS fixes this layout: upper-case section headings, cmdlet and .NET type names as headings, and
+"Example 1: Verb ..." titles. -->
+<!-- vale Google.Headings = NO -->
+<!-- vale Google.Colons = NO -->
+<!-- vale Google.Spacing = NO -->
+
 # ConvertTo-OneLiner
 
 ## SYNOPSIS
@@ -29,17 +35,17 @@ ConvertTo-OneLiner -Path <String> [-Mode <String>] [-Wrap <String>] [-MaxLength 
 
 ## DESCRIPTION
 
-ConvertTo-OneLiner parses the input with the PowerShell language parser and rewrites it from the token
-stream, guided by the abstract syntax tree, into a single physical line with no carriage return or line
-feed. Statement separators are inserted only where two sibling statements meet, so constructs such as
-`} else`, `} catch`, `switch` clauses and `begin`/`process`/`end` blocks are never broken by a stray
-semicolon. Here-strings and multi-line string literals are rewritten as one-line double-quoted strings
-with their embedded newlines preserved as backtick escapes.
+ConvertTo-OneLiner parses the input with the PowerShell language parser. It then rewrites it from the
+token stream, guided by the abstract syntax tree, into a single physical line. The result has no carriage
+return or line feed. Statement separators are inserted only where two sibling statements meet. A stray
+semicolon never breaks constructs such as `} else`, `} catch`, `switch` clauses, and
+`begin`/`process`/`end` blocks. Here-strings and multi-line string literals are rewritten as one-line
+double-quoted strings with their embedded newlines preserved as backtick escapes.
 
-If the input does not parse, the function stops and reports the parse errors with their line numbers
-rather than emitting something that might behave differently. A top-level `param` block is wrapped as
-`& { ... }` so arguments can still be appended. Dropped `#requires` statements and comment-based help
-raise warnings on the warning stream.
+If the input does not parse, the function stops and reports the parse errors with their line numbers. It
+never emits something that might behave differently. A top-level `param` block is wrapped as `& { ... }`
+so arguments can still be appended. Dropped `#requires` statements and comment-based help raise warnings
+on the warning stream.
 
 Use Test-OneLiner to prove that the result is the same program as the input.
 
@@ -111,9 +117,9 @@ Accept wildcard characters: False
 ### -Mode
 
 Output form. Plain is readable PowerShell on one line. Encoded is the standard `-EncodedCommand` form
-(Base64 of UTF-16LE). Auto chooses Plain unless Wrap is not None and the one-liner contains a character
-cmd.exe reinterprets inside double quotes (a double quote, a percent sign, or an exclamation mark), in
-which case it chooses Encoded.
+(Base64 of UTF-16LE). Auto chooses Encoded when Wrap is not None and the one-liner contains a character
+that cmd.exe reinterprets inside double quotes. Those characters are a double quote, a percent sign, and
+an exclamation mark. Otherwise Auto chooses Plain.
 
 ```yaml
 Type: String
