@@ -6,7 +6,7 @@ BeforeDiscovery {
 }
 
 BeforeAll {
-    Import-Module (Join-Path $PSScriptRoot '..' 'src' 'Flatline' 'Flatline.psd1') -Force
+    Import-Module (Join-Path $PSScriptRoot '../src/Flatline/Flatline.psd1') -Force
     Import-Module (Join-Path $PSScriptRoot 'TestHelpers.psm1') -Force
 }
 
@@ -44,8 +44,8 @@ Describe 'ConvertTo-OneLiner transform' {
 
 Describe 'Dropped constructs raise warnings' {
     BeforeAll {
-        Import-Module (Join-Path $PSScriptRoot '..' 'src' 'Flatline' 'Flatline.psd1') -Force
-        $script:Source = Get-Content -LiteralPath (Join-Path $PSScriptRoot 'fixtures' 'requires-and-help.ps1') -Raw
+        Import-Module (Join-Path $PSScriptRoot '../src/Flatline/Flatline.psd1') -Force
+        $script:Source = Get-Content -LiteralPath (Join-Path $PSScriptRoot 'fixtures/requires-and-help.ps1') -Raw
     }
 
     It 'warns about a dropped #requires statement' {

@@ -1,5 +1,5 @@
 BeforeAll {
-    $script:ModuleRoot = Join-Path $PSScriptRoot '..' 'src' 'Flatline'
+    $script:ModuleRoot = Join-Path $PSScriptRoot '../src/Flatline'
     $script:ManifestPath = Join-Path $script:ModuleRoot 'Flatline.psd1'
     Import-Module $script:ManifestPath -Force
 }

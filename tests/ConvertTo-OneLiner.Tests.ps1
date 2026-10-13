@@ -1,5 +1,5 @@
 BeforeAll {
-    Import-Module (Join-Path $PSScriptRoot '..' 'src' 'Flatline' 'Flatline.psd1') -Force
+    Import-Module (Join-Path $PSScriptRoot '../src/Flatline/Flatline.psd1') -Force
 }
 
 AfterAll {
