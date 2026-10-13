@@ -25,7 +25,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   Returns `Equivalent`, `ParseErrors` and `FirstDifference`.
 - External help for both functions, generated from Markdown under `docs/`.
 - 20 hazard fixtures with structural and behavioural tests on Windows PowerShell 5.1 and PowerShell 7
-  (Windows and Linux).
+  (Windows and Linux). The leading-pipe fixture runs on PowerShell 7 only.
 - CI matrix and a PSScriptAnalyzer lint gate.
 
 [0.1.0]: https://github.com/VahagnShekyan/flatline/releases/tag/v0.1.0

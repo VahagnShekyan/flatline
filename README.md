@@ -46,7 +46,7 @@ Test-OneLiner -Original $script -OneLiner $oneLiner | Select-Object Equivalent
 
 ## Install
 
-From the PowerShell Gallery (once published):
+From the PowerShell Gallery:
 
 ```powershell
 Install-Module Flatline -Scope CurrentUser
@@ -76,7 +76,15 @@ ConvertTo-OneLiner -Path .\deploy.ps1 -Wrap WindowsPowerShell -Clipboard
 
 # Fail if it will not fit a length limit
 ConvertTo-OneLiner -Path .\deploy.ps1 -MaxLength 8191
+
+# Check that the one-liner is the same program as the original
+$source = Get-Content .\deploy.ps1 -Raw
+$oneLiner = ConvertTo-OneLiner -Script $source
+Test-OneLiner -Original $source -OneLiner $oneLiner
 ```
+
+Use the default `-Wrap None` when you paste into a PowerShell prompt. Use `-Wrap WindowsPowerShell` or
+`-Wrap Pwsh` when the box runs the command through cmd.exe.
 
 `Get-Help ConvertTo-OneLiner -Full` and `Get-Help Test-OneLiner -Full` document every parameter.
 
@@ -157,7 +165,8 @@ so a flattened `param` script still compares equal to its source.
 Every fixture in the test suite is also run as a fresh child process in both its original and flattened
 form, and the two are required to produce the same standard output, the same exit code, and the same
 answer to whether anything was written to standard error — on Windows PowerShell 5.1 and PowerShell 7 on
-Windows, and PowerShell 7 on Linux.
+Windows, and PowerShell 7 on Linux. The leading-pipe fixture runs on PowerShell 7 only, because Windows
+PowerShell 5.1 cannot parse that syntax.
 
 ## Developing
 
