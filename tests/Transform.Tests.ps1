@@ -2,6 +2,8 @@ BeforeDiscovery {
     $script:FixtureRoot = Join-Path $PSScriptRoot 'fixtures'
     $script:Fixtures = Get-ChildItem -Path $script:FixtureRoot -Filter '*.ps1' |
         Sort-Object Name |
+        # Leading-pipe continuation is PowerShell 7 syntax; 5.1 cannot parse it.
+        Where-Object { $PSVersionTable.PSVersion.Major -ge 7 -or $_.BaseName -ne 'pipeline-leading' } |
         ForEach-Object { @{ Name = $_.BaseName; FullName = $_.FullName } }
 }
 
