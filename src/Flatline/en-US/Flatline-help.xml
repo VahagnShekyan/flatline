@@ -1,0 +1,258 @@
+<?xml version="1.0" encoding="utf-8"?>
+<helpItems xmlns="http://msh" schema="maml">
+  <command:command xmlns:maml="http://schemas.microsoft.com/maml/2004/10" xmlns:command="http://schemas.microsoft.com/maml/dev/command/2004/10" xmlns:dev="http://schemas.microsoft.com/maml/dev/2004/10">
+    <command:details>
+      <command:name>ConvertTo-OneLiner</command:name>
+      <maml:description>
+        <maml:para>Turns a multi-line PowerShell script into a single line that behaves identically.</maml:para>
+      </maml:description>
+      <command:verb>ConvertTo</command:verb>
+      <command:noun>OneLiner</command:noun>
+    </command:details>
+    <maml:description>
+      <maml:para>ConvertTo-OneLiner parses the input with the PowerShell language parser and rewrites it from the token stream, guided by the abstract syntax tree, into a single physical line with no carriage return or line feed. Statement separators are inserted only where two sibling statements meet, so constructs such as "} else", "} catch", switch clauses and begin/process/end blocks are never broken by a stray semicolon. Here-strings and multi-line string literals are rewritten as one-line double-quoted strings with their embedded newlines preserved as backtick escapes.</maml:para>
+      <maml:para>If the input does not parse, the function stops and reports the parse errors with their line numbers rather than emitting something that might behave differently. A top-level param block is wrapped as "and { ... }" so arguments can still be appended. Dropped #requires statements and comment-based help raise warnings on the warning stream.</maml:para>
+      <maml:para>Use Test-OneLiner to prove that the result is the same program as the input.</maml:para>
+    </maml:description>
+    <command:syntax>
+      <command:syntaxItem>
+        <maml:name>ConvertTo-OneLiner</maml:name>
+        <command:parameter required="true" pipelineInput="true (ByValue)" position="named">
+          <maml:name>Script</maml:name>
+          <command:parameterValue required="true">String</command:parameterValue>
+        </command:parameter>
+        <command:parameter required="false" position="named">
+          <maml:name>Mode</maml:name>
+          <command:parameterValue required="true">String</command:parameterValue>
+        </command:parameter>
+        <command:parameter required="false" position="named">
+          <maml:name>Wrap</maml:name>
+          <command:parameterValue required="true">String</command:parameterValue>
+        </command:parameter>
+        <command:parameter required="false" position="named">
+          <maml:name>MaxLength</maml:name>
+          <command:parameterValue required="true">Int32</command:parameterValue>
+        </command:parameter>
+        <command:parameter required="false" position="named">
+          <maml:name>Clipboard</maml:name>
+        </command:parameter>
+      </command:syntaxItem>
+      <command:syntaxItem>
+        <maml:name>ConvertTo-OneLiner</maml:name>
+        <command:parameter required="true" position="named">
+          <maml:name>Path</maml:name>
+          <command:parameterValue required="true">String</command:parameterValue>
+        </command:parameter>
+        <command:parameter required="false" position="named">
+          <maml:name>Mode</maml:name>
+          <command:parameterValue required="true">String</command:parameterValue>
+        </command:parameter>
+        <command:parameter required="false" position="named">
+          <maml:name>Wrap</maml:name>
+          <command:parameterValue required="true">String</command:parameterValue>
+        </command:parameter>
+        <command:parameter required="false" position="named">
+          <maml:name>MaxLength</maml:name>
+          <command:parameterValue required="true">Int32</command:parameterValue>
+        </command:parameter>
+        <command:parameter required="false" position="named">
+          <maml:name>Clipboard</maml:name>
+        </command:parameter>
+      </command:syntaxItem>
+    </command:syntax>
+    <command:parameters>
+      <command:parameter required="true" pipelineInput="false" position="named">
+        <maml:name>Path</maml:name>
+        <maml:description>
+          <maml:para>Path to a .ps1 file to read. The file is read as raw text, preserving its line endings.</maml:para>
+        </maml:description>
+        <command:parameterValue required="true">String</command:parameterValue>
+        <dev:type><maml:name>String</maml:name></dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="true" pipelineInput="true (ByValue)" position="named">
+        <maml:name>Script</maml:name>
+        <maml:description>
+          <maml:para>The script text to flatten. Accepts pipeline input.</maml:para>
+        </maml:description>
+        <command:parameterValue required="true">String</command:parameterValue>
+        <dev:type><maml:name>String</maml:name></dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="false" pipelineInput="false" position="named">
+        <maml:name>Mode</maml:name>
+        <maml:description>
+          <maml:para>Output form. Plain is readable PowerShell on one line. Encoded is the standard -EncodedCommand form (Base64 of UTF-16LE). Auto chooses Plain unless Wrap is not None and the one-liner contains a character cmd.exe reinterprets inside double quotes (a double quote, a percent sign, or an exclamation mark), in which case it chooses Encoded.</maml:para>
+        </maml:description>
+        <command:parameterValue required="true">String</command:parameterValue>
+        <dev:type><maml:name>String</maml:name></dev:type>
+        <dev:defaultValue>Auto</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="false" pipelineInput="false" position="named">
+        <maml:name>Wrap</maml:name>
+        <maml:description>
+          <maml:para>How to present the one-liner. None emits bare PowerShell for a PowerShell prompt. WindowsPowerShell and Pwsh emit a full powershell.exe or pwsh invocation with -NoProfile, for boxes that run through cmd.</maml:para>
+        </maml:description>
+        <command:parameterValue required="true">String</command:parameterValue>
+        <dev:type><maml:name>String</maml:name></dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="false" pipelineInput="false" position="named">
+        <maml:name>MaxLength</maml:name>
+        <maml:description>
+          <maml:para>Maximum length of the result. If the result is longer, the function throws and reports both the Plain and Encoded lengths. Encoded output is roughly 2.7 times longer and cannot rescue a length problem. The cmd.exe command-line limit is 8191 characters.</maml:para>
+        </maml:description>
+        <command:parameterValue required="true">Int32</command:parameterValue>
+        <dev:type><maml:name>Int32</maml:name></dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="false" pipelineInput="false" position="named">
+        <maml:name>Clipboard</maml:name>
+        <maml:description>
+          <maml:para>Copies the result to the clipboard. Where Set-Clipboard is not available, a warning is written and the result is not copied.</maml:para>
+        </maml:description>
+        <command:parameterValue required="false">SwitchParameter</command:parameterValue>
+        <dev:type><maml:name>SwitchParameter</maml:name></dev:type>
+        <dev:defaultValue>False</dev:defaultValue>
+      </command:parameter>
+    </command:parameters>
+    <command:inputTypes>
+      <command:inputType>
+        <dev:type><maml:name>System.String</maml:name></dev:type>
+        <maml:description>
+          <maml:para>A script passed to -Script, including from the pipeline.</maml:para>
+        </maml:description>
+      </command:inputType>
+    </command:inputTypes>
+    <command:returnValues>
+      <command:returnValue>
+        <dev:type><maml:name>System.String</maml:name></dev:type>
+        <maml:description>
+          <maml:para>A single line with no carriage return or line feed.</maml:para>
+        </maml:description>
+      </command:returnValue>
+    </command:returnValues>
+    <maml:alertSet>
+      <maml:alert>
+        <maml:para>Flatline is not an obfuscator. Output stays readable for audit. Note that -EncodedCommand itself can trigger endpoint-security alerts.</maml:para>
+      </maml:alert>
+    </maml:alertSet>
+    <command:examples>
+      <command:example>
+        <maml:title>-------------------------- Example 1 --------------------------</maml:title>
+        <dev:code>ConvertTo-OneLiner -Script $script</dev:code>
+        <dev:remarks>
+          <maml:para>Flattens a script containing an if/else block to: if (Test-Path C:\Temp) { 'exists' } else { 'missing' }</maml:para>
+        </dev:remarks>
+      </command:example>
+      <command:example>
+        <maml:title>-------------------------- Example 2 --------------------------</maml:title>
+        <dev:code>ConvertTo-OneLiner -Path .\deploy.ps1 -Wrap WindowsPowerShell</dev:code>
+        <dev:remarks>
+          <maml:para>Reads the script from disk and wraps it as a full powershell.exe -NoProfile invocation. Because Wrap is not None, Auto mode chooses the Encoded form when the one-liner contains a character cmd.exe would reinterpret inside double quotes.</maml:para>
+        </dev:remarks>
+      </command:example>
+      <command:example>
+        <maml:title>-------------------------- Example 3 --------------------------</maml:title>
+        <dev:code>ConvertTo-OneLiner -Path .\task.ps1 -Wrap Pwsh -Mode Encoded -Clipboard</dev:code>
+        <dev:remarks>
+          <maml:para>Produces the encoded pwsh invocation and copies it to the clipboard.</maml:para>
+        </dev:remarks>
+      </command:example>
+    </command:examples>
+    <command:relatedLinks>
+      <maml:navigationLink>
+        <maml:linkText>Test-OneLiner</maml:linkText>
+        <maml:uri>https://github.com/VahagnShekyan/flatline/blob/main/docs/Test-OneLiner.md</maml:uri>
+      </maml:navigationLink>
+    </command:relatedLinks>
+  </command:command>
+  <command:command xmlns:maml="http://schemas.microsoft.com/maml/2004/10" xmlns:command="http://schemas.microsoft.com/maml/dev/command/2004/10" xmlns:dev="http://schemas.microsoft.com/maml/dev/2004/10">
+    <command:details>
+      <command:name>Test-OneLiner</command:name>
+      <maml:description>
+        <maml:para>Checks whether a one-liner is the same program as the original script.</maml:para>
+      </maml:description>
+      <command:verb>Test</command:verb>
+      <command:noun>OneLiner</command:noun>
+    </command:details>
+    <maml:description>
+      <maml:para>Test-OneLiner parses both inputs with the PowerShell language parser and requires zero parse errors from each. It then walks both abstract syntax trees in order and compares node types and leaf values: constant values, variable names, command names, member names and parameter names. String nodes are compared by value, so a here-string and its flattened double-quoted form are treated as equivalent. A top-level "and { ... }" wrapper is unwrapped before comparison, so a flattened param script still compares equal to its source.</maml:para>
+      <maml:para>The result reports whether the two are Equivalent, any ParseErrors found, and the FirstDifference when they diverge.</maml:para>
+    </maml:description>
+    <command:syntax>
+      <command:syntaxItem>
+        <maml:name>Test-OneLiner</maml:name>
+        <command:parameter required="true" position="0">
+          <maml:name>Original</maml:name>
+          <command:parameterValue required="true">String</command:parameterValue>
+        </command:parameter>
+        <command:parameter required="true" position="1">
+          <maml:name>OneLiner</maml:name>
+          <command:parameterValue required="true">String</command:parameterValue>
+        </command:parameter>
+      </command:syntaxItem>
+    </command:syntax>
+    <command:parameters>
+      <command:parameter required="true" pipelineInput="false" position="0">
+        <maml:name>Original</maml:name>
+        <maml:description>
+          <maml:para>The original, usually multi-line, script.</maml:para>
+        </maml:description>
+        <command:parameterValue required="true">String</command:parameterValue>
+        <dev:type><maml:name>String</maml:name></dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="true" pipelineInput="false" position="1">
+        <maml:name>OneLiner</maml:name>
+        <maml:description>
+          <maml:para>The one-liner to compare against the original.</maml:para>
+        </maml:description>
+        <command:parameterValue required="true">String</command:parameterValue>
+        <dev:type><maml:name>String</maml:name></dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+    </command:parameters>
+    <command:inputTypes>
+      <command:inputType>
+        <dev:type><maml:name>System.String</maml:name></dev:type>
+        <maml:description><maml:para></maml:para></maml:description>
+      </command:inputType>
+    </command:inputTypes>
+    <command:returnValues>
+      <command:returnValue>
+        <dev:type><maml:name>System.Management.Automation.PSCustomObject</maml:name></dev:type>
+        <maml:description>
+          <maml:para>An object with Equivalent, ParseErrors and FirstDifference.</maml:para>
+        </maml:description>
+      </command:returnValue>
+    </command:returnValues>
+    <maml:alertSet>
+      <maml:alert>
+        <maml:para>Equivalence is structural, not textual. Whitespace, comments and the physical form of strings do not affect the result; a changed constant, name or node type does.</maml:para>
+      </maml:alert>
+    </maml:alertSet>
+    <command:examples>
+      <command:example>
+        <maml:title>-------------------------- Example 1 --------------------------</maml:title>
+        <dev:code>Test-OneLiner -Original $script -OneLiner $one</dev:code>
+        <dev:remarks>
+          <maml:para>Returns an object whose Equivalent property is True when the one-liner is the same program as the original.</maml:para>
+        </dev:remarks>
+      </command:example>
+      <command:example>
+        <maml:title>-------------------------- Example 2 --------------------------</maml:title>
+        <dev:code>(Test-OneLiner -Original '1 + 2' -OneLiner '1 + 3').Equivalent</dev:code>
+        <dev:remarks>
+          <maml:para>Returns False, because the constant differs.</maml:para>
+        </dev:remarks>
+      </command:example>
+    </command:examples>
+    <command:relatedLinks>
+      <maml:navigationLink>
+        <maml:linkText>ConvertTo-OneLiner</maml:linkText>
+        <maml:uri>https://github.com/VahagnShekyan/flatline/blob/main/docs/ConvertTo-OneLiner.md</maml:uri>
+      </maml:navigationLink>
+    </command:relatedLinks>
+  </command:command>
+</helpItems>

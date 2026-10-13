@@ -1,0 +1,6 @@
+testResults.xml
+TestResults.xml
+*.TestResults.xml
+coverage.xml
+[Oo]utput/
+.vs/
