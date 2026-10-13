@@ -1,13 +1,13 @@
 # Flatline
 
 Turn any multi-line PowerShell script into a single line that behaves identically. Flatline is
-parser-based, keeps its output readable for audit, and ships with a built-in equivalence check so you
-can prove the one-liner is the same program as the script you started with.
+parser-based and keeps its output readable for audit. It also has a built-in equivalence check. Use it
+to prove that the one-liner is the same program as your original script.
 
 It exists for the fields that only accept one line: RMM consoles, remote shells, scheduled-task
-command boxes. Flattening those by hand breaks on here-strings, nested quotes and `} else` blocks.
-Flatline does it from the PowerShell abstract syntax tree, not regular expressions, so the result is
-the same program or it is a clear error with a line number — never something that quietly behaves
+command boxes. Flattening those by hand breaks on here-strings, nested quotes, and `} else` blocks.
+Flatline works from the PowerShell abstract syntax tree, not regular expressions. The result is the
+same program, or a clear error with a line number. It's never something that quietly behaves
 differently.
 
 ## Before and after
@@ -33,8 +33,8 @@ else {
 & { param( [string] $Service = 'Spooler' ) $svc = Get-Service -Name $Service;if ($svc.Status -eq 'Running') { '{0} is up' -f $svc.DisplayName } else { Start-Service -Name $Service } }
 ```
 
-The `} else` keeps its space instead of gaining a semicolon that would break the script, and the
-top-level `param` block is wrapped in `& { ... }` so you can still append arguments. `Test-OneLiner`
+The `} else` keeps its space instead of gaining a semicolon that would break the script. The
+top-level `param` block is wrapped in `& { ... }`, so you can still append arguments. `Test-OneLiner`
 confirms the two are the same program:
 
 ```powershell
@@ -46,7 +46,7 @@ Test-OneLiner -Original $script -OneLiner $oneLiner | Select-Object Equivalent
 
 ## Install
 
-From the PowerShell Gallery (once published):
+From the PowerShell Gallery:
 
 ```powershell
 Install-Module Flatline -Scope CurrentUser
@@ -76,7 +76,15 @@ ConvertTo-OneLiner -Path .\deploy.ps1 -Wrap WindowsPowerShell -Clipboard
 
 # Fail if it will not fit a length limit
 ConvertTo-OneLiner -Path .\deploy.ps1 -MaxLength 8191
+
+# Check that the one-liner is the same program as the original
+$source = Get-Content .\deploy.ps1 -Raw
+$oneLiner = ConvertTo-OneLiner -Script $source
+Test-OneLiner -Original $source -OneLiner $oneLiner
 ```
+
+Use the default `-Wrap None` when you paste into a PowerShell prompt. Use `-Wrap WindowsPowerShell` or
+`-Wrap Pwsh` when the box runs the command through cmd.exe.
 
 `Get-Help ConvertTo-OneLiner -Full` and `Get-Help Test-OneLiner -Full` document every parameter.
 
@@ -96,22 +104,22 @@ ConvertTo-OneLiner -Path .\deploy.ps1 -MaxLength 8191
 
 ### The Auto rule
 
-Quoting through cmd.exe is where hand-made one-liners fail most. Flatline's Auto mode is deliberate
-about it:
+Quoting through cmd.exe is where hand-made one-liners fail most. Flatline's Auto mode handles it with
+one rule.
 
-> **Auto chooses Encoded when, and only when, `-Wrap` is not `None` and the one-line script contains a
-> character that cmd.exe reinterprets inside a double-quoted argument: a double quote `"`, a percent
-> sign `%`, or an exclamation mark `!`. In every other case Auto chooses Plain.**
+> **Auto chooses Encoded when `-Wrap` isn't `None` and the script contains a character that cmd.exe
+> reinterprets inside a double-quoted argument. Those characters are a double quote `"`, a percent
+> sign `%`, and an exclamation mark `!`. In every other case Auto chooses Plain.**
 
-With `-Wrap None` there is no cmd layer, so Auto is always Plain. Inside a cmd double-quoted argument the
-characters `| & < > ( ) ^` are literal and safe; `"`, `%` and `!` are not, so their presence is what
-tips Auto to the Encoded form. Encoded output is roughly 2.7 times longer than Plain and cannot rescue a
-length problem, so Flatline reaches for it only when correctness through cmd requires it.
+With `-Wrap None` there is no cmd layer, so Auto is always Plain. Inside a cmd double-quoted argument,
+the characters `| & < > ( ) ^` are literal and safe. The characters `"`, `%`, and `!` aren't, so they
+tip Auto to the Encoded form. Encoded output is roughly 2.7 times longer than Plain and can't fix a
+length problem. Flatline uses it only when cmd quoting requires it.
 
 ## Length limits
 
-`-MaxLength` errors if the result is longer than the limit, and reports both the Plain and Encoded
-lengths so you can see that Encoded will not help:
+`-MaxLength` errors if the result is longer than the limit. The error reports both the Plain and
+Encoded lengths, so you can see that Encoded doesn't help:
 
 ```
 The one-liner is 9004 characters, over the -MaxLength of 8191. Plain form: 9004 characters;
@@ -124,8 +132,8 @@ The cmd.exe command-line limit is **8191** characters.
 ## What Flatline is not
 
 Flatline is **not an obfuscator**. It does no renaming, no string splitting, no compression, and no
-`Invoke-Expression` bootstrap. The output stays readable so it can be audited, and so it does not look
-like the living-off-the-land patterns that endpoint-security tools flag.
+`Invoke-Expression` bootstrap. The output stays readable so you can audit it. It also doesn't look like
+the living-off-the-land patterns that endpoint-security tools flag.
 
 Note that the `-EncodedCommand` form itself can trigger endpoint-security alerts, because attacker
 tooling uses it to hide payloads. Prefer Plain output where cmd quoting allows it, and expect Encoded
@@ -148,16 +156,17 @@ Out of scope for v1, and untested: DSC configurations, workflows, a GUI, and a w
 
 ## Verification
 
-`Test-OneLiner` parses both the original and the one-liner, requires zero parse errors from each, then
-walks both ASTs in order and compares node types and leaf values — constants, variable names, command
-names, member names and parameter names. String nodes are compared by value, so a here-string and its
+`Test-OneLiner` parses both the original and the one-liner and requires zero parse errors from each.
+It then walks both ASTs in order and compares node types and leaf values. Leaf values are constants,
+variable names, command names, member names, and parameter names. String nodes are compared by value, so a here-string and its
 flattened double-quoted form are treated as equal. A top-level `& { ... }` wrapper is unwrapped first,
 so a flattened `param` script still compares equal to its source.
 
-Every fixture in the test suite is also run as a fresh child process in both its original and flattened
-form, and the two are required to produce the same standard output, the same exit code, and the same
-answer to whether anything was written to standard error — on Windows PowerShell 5.1 and PowerShell 7 on
-Windows, and PowerShell 7 on Linux.
+Every fixture in the test suite also runs as a fresh child process once in its original form and once
+in its flattened form. The two forms must produce the same standard output, the same exit code, and the
+same answer to whether anything was written to standard error. This runs on Windows PowerShell 5.1, PowerShell 7 on
+Windows, and PowerShell 7 on Linux. The leading-pipe fixture runs on PowerShell 7 only, because Windows
+PowerShell 5.1 cannot parse that syntax.
 
 ## Developing
 

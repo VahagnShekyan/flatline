@@ -20,12 +20,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `-Wrap None|WindowsPowerShell|Pwsh`, `-MaxLength`, `-Clipboard`.
 - Auto mode cmd-hazard rule: chooses Encoded only when wrapped and the payload contains `"`, `%` or `!`.
 - `-MaxLength` error reports both Plain and Encoded lengths and the 8191-character cmd.exe limit.
-- `Test-OneLiner`: parses both inputs, requires zero parse errors, walks both ASTs in order and compares
-  node types and leaf values; compares strings by value; unwraps a `& { ... }` wrapper before comparing.
+- `Test-OneLiner`: parses both inputs and requires zero parse errors. Walks both ASTs in order and
+  compares node types and leaf values. Compares strings by value and unwraps a `& { ... }` wrapper first.
   Returns `Equivalent`, `ParseErrors` and `FirstDifference`.
 - External help for both functions, generated from Markdown under `docs/`.
 - 20 hazard fixtures with structural and behavioural tests on Windows PowerShell 5.1 and PowerShell 7
-  (Windows and Linux).
+  (Windows and Linux). The leading-pipe fixture runs on PowerShell 7 only.
 - CI matrix and a PSScriptAnalyzer lint gate.
 
 [0.1.0]: https://github.com/VahagnShekyan/flatline/releases/tag/v0.1.0
