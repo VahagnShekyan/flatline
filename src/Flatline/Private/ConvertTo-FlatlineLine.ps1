@@ -22,8 +22,8 @@ function ConvertTo-FlatlineLine {
     }
 
     $boundaryOffsets = [System.Collections.Generic.HashSet[int]]::new()
-    $allNodes = $ast.FindAll({ $true }, $true)
-    foreach ($node in $allNodes) {
+    $astNodes = $ast.FindAll({ $true }, $true)
+    foreach ($node in $astNodes) {
         if ($node -is [System.Management.Automation.Language.NamedBlockAst] -or
             $node -is [System.Management.Automation.Language.StatementBlockAst]) {
             $statements = $node.Statements
